@@ -197,7 +197,3 @@ The system includes comprehensive test coverage:
 - Integration tests for the full pipeline
 - Mock documents covering all categories
 - Both valid and invalid document scenarios
-
-## License
-
-This project is created for the Alix engineering assessment.
