@@ -4,6 +4,8 @@ from .base_agent import BaseAgent
 from .classification_agent import ClassificationAgent
 from .compliance_agent import ComplianceAgent
 from models.document import Document, ProcessingResult, ClassificationResult, ComplianceResult
+from utils.validators import DocumentValidator
+from utils.exceptions import ValidationError, ProcessingError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,6 +21,7 @@ class MasterAgent(BaseAgent):
         self.compliance_agent = ComplianceAgent()
     
     async def process(self, payload: Dict[str, Any]) -> ProcessingResult:
+        self.start_processing()
         try:
             document = self._validate_payload(payload)
             
@@ -73,13 +76,19 @@ class MasterAgent(BaseAgent):
             raise
     
     def _validate_payload(self, payload: Dict[str, Any]) -> Document:
-        if "document_id" not in payload:
-            raise ValueError("Missing required field: document_id")
-        if "content" not in payload:
-            raise ValueError("Missing required field: content")
-        
-        return Document(
-            document_id=payload["document_id"],
-            content=payload["content"],
-            metadata=payload.get("metadata", {})
-        )
+        try:
+            DocumentValidator.validate_payload(payload)
+            
+            # Sanitize content
+            sanitized_content = DocumentValidator.sanitize_content(payload["content"])
+            
+            return Document(
+                document_id=payload["document_id"],
+                content=sanitized_content,
+                metadata=payload.get("metadata", {})
+            )
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise ValidationError(f"Invalid payload: {str(e)}", 
+                                document_id=payload.get("document_id"))

@@ -73,11 +73,24 @@ def cli(verbose):
 @click.option('--content', '-c', help='Document content (if not using file)')
 @click.option('--output-json', is_flag=True, help='Output result as JSON')
 def process(document_id: str, file: Optional[str], content: Optional[str], output_json: bool):
+    # Validate inputs
+    if not document_id or len(document_id.strip()) == 0:
+        console.print("[red]Error: Document ID cannot be empty[/red]")
+        return
+        
     if file:
-        with open(file, 'r') as f:
-            content = f.read()
+        try:
+            with open(file, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except Exception as e:
+            console.print(f"[red]Error reading file: {str(e)}[/red]")
+            return
     elif not content:
         console.print("[red]Error: Either --file or --content must be provided[/red]")
+        return
+    
+    if len(content.strip()) < 10:
+        console.print("[red]Error: Document content must be at least 10 characters[/red]")
         return
     
     master_agent = MasterAgent()

@@ -80,6 +80,7 @@ class ClassificationAgent(BaseAgent):
         }
     
     async def process(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        self.start_processing()
         try:
             document = payload.get("document")
             if not document:

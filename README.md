@@ -36,7 +36,7 @@ The system consists of three specialized agents:
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/aagalyoon/estate-document-processor.git
 cd estate-document-processor
 ```
 
@@ -45,6 +45,16 @@ cd estate-document-processor
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+```
+
+3. (Optional) Install development dependencies:
+```bash
+pip install -r requirements-dev.txt
+```
+
+4. (Optional) Install as a package:
+```bash
+pip install -e .
 ```
 
 ## Usage
@@ -92,32 +102,47 @@ python cli.py show-taxonomy
 
 Execute the test suite:
 ```bash
-python -m pytest tests/
+python -m pytest tests/ -v
 ```
 
 Or using unittest:
 ```bash
 python tests/test_agents.py
+python tests/test_validators.py
+python tests/test_edge_cases.py
+```
+
+Run with coverage:
+```bash
+pytest tests/ --cov=agents --cov=models --cov=utils
 ```
 
 ## Project Structure
 
 ```
 estate-document-processor/
-├── agents/                  # Agent implementations
-│   ├── base_agent.py       # Abstract base agent
-│   ├── master_agent.py     # Routing/orchestration agent
-│   ├── classification_agent.py  # Document classification
-│   └── compliance_agent.py      # Compliance validation
-├── models/                  # Data models
-│   └── document.py         # Document and result models
-├── data/                    # Test data
-│   └── mock_documents.py   # Mock documents for testing
-├── tests/                   # Unit tests
-│   └── test_agents.py      # Agent test cases
-├── cli.py                   # Command-line interface
-├── requirements.txt         # Python dependencies
-└── README.md               # This file
+├── agents/                      # Agent implementations
+│   ├── base_agent.py           # Abstract base agent with metrics
+│   ├── master_agent.py         # Routing/orchestration agent
+│   ├── classification_agent.py # Document classification
+│   └── compliance_agent.py     # Compliance validation
+├── models/                      # Data models
+│   └── document.py             # Document and result models
+├── utils/                       # Utilities
+│   ├── validators.py           # Input validation
+│   └── exceptions.py           # Custom exceptions
+├── data/                        # Test data
+│   └── mock_documents.py       # Mock documents for testing
+├── tests/                       # Unit tests
+│   ├── test_agents.py          # Agent test cases
+│   ├── test_validators.py      # Validator test cases
+│   └── test_edge_cases.py      # Edge case testing
+├── api.py                       # FastAPI REST endpoints (bonus)
+├── cli.py                       # Command-line interface
+├── setup.py                     # Package setup
+├── requirements.txt             # Core dependencies
+├── requirements-dev.txt         # Development dependencies
+└── README.md                    # Documentation
 ```
 
 ## How It Works
@@ -179,16 +204,36 @@ The system gracefully handles errors at each stage, providing detailed error inf
 4. Validation rules are static and predefined
 5. No external services or databases are required
 
+## Bonus Features Implemented
+
+### REST API
+The system includes a FastAPI-based REST API (`api.py`) with the following endpoints:
+- `POST /process` - Process a document
+- `GET /taxonomy` - Get classification taxonomy
+- `GET /agents/metrics` - Get performance metrics
+- `GET /health` - Health check endpoint
+
+To run the API:
+```bash
+pip install fastapi uvicorn
+uvicorn api:app --reload
+```
+
+### Performance Metrics
+All agents track detailed performance metrics including:
+- Processing counts and success rates
+- Min/max/average processing times
+- Error tracking and last processed timestamps
+
 ## Future Enhancements
 
 - Integration with machine learning models for improved classification
 - Support for PDF and image processing with OCR
 - Database persistence for document tracking
-- REST API endpoint support
 - Real-time document streaming
 - Multi-language support
 - Dynamic rule configuration
-- Performance metrics and monitoring
+- WebSocket support for real-time updates
 
 ## Testing
 

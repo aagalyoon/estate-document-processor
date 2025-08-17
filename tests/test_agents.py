@@ -139,10 +139,11 @@ class TestMasterAgent(TestCase):
     def test_error_handling(self):
         invalid_payload = {"content": "Test content"}
         
-        with self.assertRaises(ValueError) as context:
+        from utils.exceptions import ValidationError
+        with self.assertRaises(ValidationError) as context:
             asyncio.run(self.agent.process(invalid_payload))
         
-        self.assertIn("Missing required field", str(context.exception))
+        self.assertIn("Document validation failed", str(context.exception))
 
 
 if __name__ == "__main__":

@@ -95,6 +95,7 @@ class ComplianceAgent(BaseAgent):
         }
     
     async def process(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        self.start_processing()
         try:
             document = payload.get("document")
             category_code = payload.get("category_code")
